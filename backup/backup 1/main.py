@@ -73,7 +73,7 @@ for i in range(4):
     img = escalar_imagen(img, constantes.ESCALA_PERSONAJE)
     animacion_jumping_down(img)
 
-jugador = Personaje(150, 400, animacion_walking)
+jugador = Personaje(150, 400, animaciones)
 
 # Definir variables de movimiento del jugador
 isJump = False

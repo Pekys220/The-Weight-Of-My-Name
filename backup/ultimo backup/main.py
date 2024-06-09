@@ -5,19 +5,14 @@ from mundo import Mundo
 
 pygame.init()
 
-# Definimos funciones importantes
+#Definimos funciones importantes
 
 def pantalla_inicio():
     ventana.fill(constantes.COLOR_CELESTE)
     dibujar_texto("The Weight Of My Name", font, constantes.COLOR_BLANCO,
                   constantes.ANCHO_VENTANA / 2 - 280,
                   constantes.ALTO_VENTANA / 2 - 200)
-    dibujar_texto("El juego que te dice cuanto pesa tu nombre!", font_subtext, constantes.COLOR_BLANCO,
-                  constantes.ANCHO_VENTANA / 2 - 180,
-                  constantes.ALTO_VENTANA / 2 - 100)
     pygame.draw.rect(ventana, constantes.COLOR_BLANCO, input_box)
-    dibujar_texto(nombre_jugador, font_text_input, constantes.COLOR_NEGRO, 
-                  input_box.x + 10, input_box.y + 10)
     pygame.display.update()
 
 def dibujar_texto(texto, fuente, color, x, y):
@@ -40,20 +35,14 @@ ventana = pygame.display.set_mode((constantes.ANCHO_VENTANA, constantes.ALTO_VEN
 
 pygame.display.set_caption("The Weight Of My Name")
 
-# Caja de texto
+#Caja de texto
 
-input_box = pygame.Rect(constantes.ANCHO_VENTANA / 2 - 100,
-                        constantes.ALTO_VENTANA / 2 + 25, 200, 50)
+input_box =pygame.Rect(constantes.ANCHO_VENTANA / 2 -100,
+                constantes.ALTO_VENTANA / 2 + 25, 200, 50)
 
-
-# Fuentes de texto
+#Fuentes de texto
 
 font = pygame.font.Font("assets/fonts/m3x6.ttf", 100)
-font_subtext = pygame.font.Font("assets/fonts/Abaddon_Light.ttf", 20)
-font_text_input = pygame.font.Font("assets/fonts/m3x6.ttf", 32)
-
-# Variable para almacenar el nombre del jugador
-nombre_jugador = "Ingrese su nombre..."
 
 # Cargar imagenes del mundo
 tile_list = []
@@ -80,7 +69,6 @@ world = Mundo()
 world.process_data(world_data, tile_list)
 
 # Definimos listas que contienen cada animacion del jugador:
-
 animacion_stay = []
 for i in range(4):
     img = pygame.image.load(f"assets/images/characters/player/stay/{i}.png")
@@ -131,28 +119,25 @@ mostrar_inicio = True
 run = True
 
 while run:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-
-        if mostrar_inicio:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN and nombre_jugador != "Ingrese su nombre...":
-                    mostrar_inicio = False
-                elif event.key == pygame.K_BACKSPACE:
-                    nombre_jugador = nombre_jugador[:-1]
-                    if nombre_jugador == "":
-                        nombre_jugador = "Ingrese su nombre..."
-                else:
-                    if nombre_jugador == "Ingrese su nombre...":
-                        nombre_jugador = ""
-                    nombre_jugador += event.unicode
-                    
-
 
     if mostrar_inicio:
         pantalla_inicio()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            text = ""
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if input_box.collidepoint(event.pos):
+                    if event.type == pygame.TEXTINPUT:
+                        text += event.text
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_BACKSPACE:
+                            text = text[:-1]
+                        if event.key == pygame.K_RETURN:
+                            mostrar_inicio = False
+
     else:
+        
         reloj.tick(constantes.FPS)
         ventana.fill(constantes.COLOR_BG)
         dibujar_grid()
@@ -166,9 +151,10 @@ while run:
         elif mover_izquierda:
             delta_x = -jugador.velocidad
 
-        # Restablecer la velocidad normal si no está corriendo
+    # Restablecer la velocidad normal si no está corriendo
         if not sprint:
             jugador.velocidad = constantes.VELOCIDAD 
+
 
         # Aplica la gravedad cuando el jugador está en el aire
         if isJump:
@@ -202,6 +188,7 @@ while run:
         else:
             jugador.animaciones = animaciones['stay']
             jugador.velocidad = constantes.VELOCIDAD
+    
 
         jugador.update()
         jugador.draw(ventana)

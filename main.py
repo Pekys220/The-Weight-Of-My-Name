@@ -4,6 +4,7 @@ from personaje import Personaje
 from mundo import Mundo
 
 pygame.init()
+pygame.mixer.init #Permite agregar musica
 
 # Definimos funciones importantes
 
@@ -23,6 +24,12 @@ def pantalla_inicio():
 def dibujar_texto(texto, fuente, color, x, y):
     img = fuente.render(texto, True, color)
     ventana.blit(img, (x, y))
+
+def dibujar_nickname(jugador, nombre):
+    texto = font_nickname.render(nombre, True, constantes.COLOR_BLANCO)
+    texto_rect = texto.get_rect(center=(jugador.forma.centerx + 15, jugador.forma.top - 30),)
+    ventana.blit(texto, texto_rect)
+
 
 def escalar_imagen(image, scale):
     w = image.get_width()
@@ -46,14 +53,17 @@ input_box = pygame.Rect(constantes.ANCHO_VENTANA / 2 - 100,
                         constantes.ALTO_VENTANA / 2 + 25, 200, 50)
 
 
+# Variable para almacenar el nombre del jugador
+nombre_jugador = "Ingrese su nombre..."
+
+tamaño_nickname = 25
+
 # Fuentes de texto
 
 font = pygame.font.Font("assets/fonts/m3x6.ttf", 100)
 font_subtext = pygame.font.Font("assets/fonts/Abaddon_Light.ttf", 20)
 font_text_input = pygame.font.Font("assets/fonts/m3x6.ttf", 32)
-
-# Variable para almacenar el nombre del jugador
-nombre_jugador = "Ingrese su nombre..."
+font_nickname = pygame.font.Font("assets/fonts/m3x6.ttf", 25)
 
 # Cargar imagenes del mundo
 tile_list = []
@@ -63,17 +73,17 @@ for x in range(255):
     tile_list.append(tile_image)
 
 world_data = [
-    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
-    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
-    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
-    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
-    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
-    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
-    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
-    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
-    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
-    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
-    [ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 ]
+    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
+    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
+    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
+    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
+    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
+    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
+    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
+    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
+    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
+    [164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164, 164],
+    [ 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0 , 0]
 ]
 
 world = Mundo()
@@ -130,6 +140,17 @@ reloj = pygame.time.Clock()
 mostrar_inicio = True
 run = True
 
+#Definimos la musica de fondo y los sonidos de algunas acciones
+
+pygame.mixer.music.load("assets/sounds/time_for_adventure.mp3")
+pygame.mixer.music.play(-1)
+
+tecla = pygame.mixer.Sound("assets/sounds/tecla.mp3")
+error = pygame.mixer.Sound("assets/sounds/error.mp3")
+salto = pygame.mixer.Sound("assets/sounds/salto.mp3")
+
+#EMPIEZA EL JUEGO
+
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -141,12 +162,16 @@ while run:
                     mostrar_inicio = False
                 elif event.key == pygame.K_BACKSPACE:
                     nombre_jugador = nombre_jugador[:-1]
+                    tecla.play()
                     if nombre_jugador == "":
                         nombre_jugador = "Ingrese su nombre..."
+                elif event.key == pygame.K_SPACE:
+                    error.play()
                 else:
                     if nombre_jugador == "Ingrese su nombre...":
                         nombre_jugador = ""
                     nombre_jugador += event.unicode
+                    tecla.play()
                     
 
 
@@ -189,6 +214,43 @@ while run:
         # Mover al jugador
         jugador.movimiento(delta_x, delta_y)
 
+        #Modificar caracteristicas del jugador en consecuencia al nombre:
+
+        caracteres_del_nombre = list(nombre_jugador)
+        if len(caracteres_del_nombre) <= 2:
+                tamaño_nickname = 25
+                constantes.VELOCIDAD = 8.5
+                constantes.AUMENTO_DE_VELOCIDAD = 10
+                constantes.GRAVEDAD = 0.2
+        elif len(caracteres_del_nombre) > 2 and len(caracteres_del_nombre) < 5:
+                tamaño_nickname = 35
+                constantes.VELOCIDAD = 6
+                constantes.AUMENTO_DE_VELOCIDAD = 8
+                constantes.GRAVEDAD = 0.4
+        elif len(caracteres_del_nombre) >= 5 and len(caracteres_del_nombre) <= 6:
+                tamaño_nickname = 45
+                constantes.VELOCIDAD = 4
+                constantes.AUMENTO_DE_VELOCIDAD = 6
+                constantes.GRAVEDAD = 0.6
+        elif len(caracteres_del_nombre) == 7:
+                tamaño_nickname = 60
+                constantes.VELOCIDAD = 3
+                constantes.AUMENTO_DE_VELOCIDAD = 5
+                constantes.GRAVEDAD = 0.8
+        elif len(caracteres_del_nombre) >= 8 and len(caracteres_del_nombre) <= 12:
+                tamaño_nickname = 70
+                constantes.VELOCIDAD = 1.3
+                constantes.AUMENTO_DE_VELOCIDAD = 2.5
+                constantes.GRAVEDAD = 1
+        elif len(caracteres_del_nombre) >= 12:
+                tamaño_nickname = 80
+                constantes.VELOCIDAD = 0.6
+                constantes.AUMENTO_DE_VELOCIDAD = 0.9
+                constantes.GRAVEDAD = 2
+        font_nickname = pygame.font.Font("assets/fonts/m3x6.ttf", tamaño_nickname)
+        
+
+
         # Actualizar estado del jugador y animaciones
         if isJump:
             jugador.animaciones = animaciones['jumping_up'] if vel_y < 0 else animaciones['jumping_down']
@@ -206,6 +268,10 @@ while run:
         jugador.update()
         jugador.draw(ventana)
 
+        dibujar_nickname(jugador, nombre_jugador.upper())
+
+        #Movimiento del jugador de acuerdo al pulsamiento (o no) de las teclas
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -218,6 +284,7 @@ while run:
                     sprint = True
                 if event.key == pygame.K_SPACE and not isJump:
                     isJump = True
+                    salto.play()
                     vel_y = -constantes.SALTO  # Ajusta este valor para cambiar la altura del salto
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:

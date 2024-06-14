@@ -208,6 +208,15 @@ while run:
             vel_y = 0
             delta_y = 0
 
+        #Limitar el mapa de forma horizontal
+
+        jugador.forma.left += delta_x
+        if jugador.forma.left < 0:
+            jugador.forma.left = 0
+        if jugador.forma.right > 965:
+            jugador.forma.right = 965
+
+
         # Dibujar mundo
         world.draw(ventana)
 
@@ -269,6 +278,7 @@ while run:
         jugador.draw(ventana)
 
         dibujar_nickname(jugador, nombre_jugador.upper())
+        dibujar_texto("Presiona shift derecho para cambiar nuevamente tu nombre", font_subtext, constantes.COLOR_BLANCO, 10, constantes.ALTO_VENTANA - 590)
 
         #Movimiento del jugador de acuerdo al pulsamiento (o no) de las teclas
 
@@ -286,6 +296,9 @@ while run:
                     isJump = True
                     salto.play()
                     vel_y = -constantes.SALTO  # Ajusta este valor para cambiar la altura del salto
+                if event.key == pygame.K_RSHIFT:
+                    mostrar_inicio = True
+                    nombre_jugador = "Ingrese su nombre..."
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:
                     mover_izquierda = False
